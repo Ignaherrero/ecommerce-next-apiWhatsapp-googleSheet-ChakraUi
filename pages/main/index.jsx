@@ -2,7 +2,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Papa from "papaparse";
-import { apiRes } from "./api/apiPrueba";
 import { Grid } from "@chakra-ui/layout";
 import { GridItem } from "@chakra-ui/layout";
 import { Text } from "@chakra-ui/layout";
