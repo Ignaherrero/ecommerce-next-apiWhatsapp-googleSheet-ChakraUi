@@ -67,7 +67,7 @@ export default function Home({ products }) {
             {idx} {item}
           </Text>
         ))}
-      <Link href={`https://wa.me/543408571936?text=${whatsapp}${total}`}>
+      <Link href={`https://wa.me/541111111111?text=${whatsapp}${total}`}>
         <Button onClick={handleSendWhatsApp}>Completar pedido</Button>
       </Link>
     </>
