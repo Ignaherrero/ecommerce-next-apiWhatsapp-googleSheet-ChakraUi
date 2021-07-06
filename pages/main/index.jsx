@@ -8,13 +8,25 @@ import { Text } from "@chakra-ui/layout";
 import { Image } from "@chakra-ui/image";
 import { Button } from "@chakra-ui/button";
 import { Link } from "@chakra-ui/layout";
+import {
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  Input,
+} from "@chakra-ui/react";
+import { useDisclosure } from "@chakra-ui/react";
 
 export default function Home({ products }) {
   // const [products, setProducts] = useState([]);
   const [card, setCard] = useState([]);
   const [total, setTotal] = useState(0);
   const [whatsapp, setWhatsapp] = useState("");
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = React.useRef();
   useEffect(() => {
     getData();
   }, []);
@@ -60,13 +72,34 @@ export default function Home({ products }) {
             );
           })}
       </Grid>
-      <Text>Lista del carrito</Text>
-      {Boolean(card.length) &&
-        card.map((item, idx) => (
-          <Text>
-            {idx} {item}
-          </Text>
-        ))}
+      <Button ref={btnRef} colorScheme="teal" onClick={onOpen}>
+        ver carrito
+      </Button>
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={onClose}
+        finalFocusRef={btnRef}
+      >
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader>Productos</DrawerHeader>
+
+          <DrawerBody>
+            {Boolean(card.length) &&
+              card.map((item, idx) => (
+                <Text>
+                  {idx} {item}
+                </Text>
+              ))}
+          </DrawerBody>
+          <DrawerFooter borderTopWidth="1px">
+            <Text>Total: {total}</Text>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
       <Link href={`https://wa.me/541111111111?text=${whatsapp}${total}`}>
         <Button onClick={handleSendWhatsApp}>Completar pedido</Button>
       </Link>
