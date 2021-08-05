@@ -16,12 +16,15 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
-  Input,
+  Flex,
+  Box,
+  Img,
+  Divider,
+  VStack,
 } from "@chakra-ui/react";
 import { useDisclosure } from "@chakra-ui/react";
 
 export default function Home({ products }) {
-  // const [products, setProducts] = useState([]);
   const [card, setCard] = useState([]);
   const [total, setTotal] = useState(0);
   const [whatsapp, setWhatsapp] = useState("");
@@ -32,8 +35,8 @@ export default function Home({ products }) {
   }, []);
 
   function handleClickAddCard(tipo, precio) {
-    setCard([...card, tipo]);
-    setTotal(Number(total + precio).toFixed(2));
+    setCard([...card, [tipo, precio]]);
+    setTotal(total + Number.parseFloat(precio, 10));
   }
 
   function handleSendWhatsApp() {
@@ -41,23 +44,42 @@ export default function Home({ products }) {
     setWhatsapp(result, total);
   }
 
+  function handleDeleteOneproduct(item) {
+    const result = card.filter((product) => product !== item);
+    setCard(result);
+  }
+
   return (
     <>
-      <h1>Products</h1>
-      <Grid gridTemplateColumns="repeat(auto-fit, minmax(240px, 300px))">
+      <Box margin="auto" width="200px">
+        <Box margin="auto">
+          <Image
+            borderRadius="full"
+            boxSize="100px"
+            objectFit="cover"
+            src="https://res.cloudinary.com/dqu61o0vv/image/upload/v1628194313/images_wynqck.jpg"
+            alt="Segun Adebayo"
+            margin="auto"
+          />
+        </Box>
+        <Text textAlign="center">Tienda</Text>
+      </Box>
+      <Grid
+        gridTemplateColumns="repeat(auto-fit, minmax(240px, 300px))"
+        gridGap="10px"
+      >
         {Boolean(products) &&
           products.map((product) => {
             return (
-              <GridItem key={product.id}>
+              <GridItem key={product.id} background="blackAlpha.50">
                 <Image
                   src={product.urlImage}
                   height="150px"
                   width="auto"
                   margin="auto"
                   display="block"
-                  alt="foto"
+                  alt={product.tipo}
                 ></Image>
-                <Text align="center">{product.tipo}</Text>
                 <Text color="red.900" align="right">
                   $ {product.precio}
                 </Text>
@@ -65,6 +87,9 @@ export default function Home({ products }) {
                   onClick={() =>
                     handleClickAddCard(product.tipo, product.precio)
                   }
+                  variant="outline"
+                  size="sm"
+                  margin="auto"
                 >
                   Agregar
                 </Button>
@@ -72,8 +97,18 @@ export default function Home({ products }) {
             );
           })}
       </Grid>
-      <Button ref={btnRef} colorScheme="teal" onClick={onOpen}>
-        ver carrito
+      <Button
+        ref={btnRef}
+        colorScheme="teal"
+        onClick={onOpen}
+        variant="outline"
+        size="sm"
+        position="fixed"
+        bottom={5}
+        lefth="50%"
+      >
+        <Img src="https://icongr.am/clarity/shopping-cart.svg?size=30&color=000000"></Img>{" "}
+        Productos
       </Button>
       <Drawer
         isOpen={isOpen}
@@ -87,22 +122,40 @@ export default function Home({ products }) {
           <DrawerHeader>Productos</DrawerHeader>
 
           <DrawerBody>
-            {Boolean(card.length) &&
-              card.map((item, idx) => (
-                <Text>
-                  {idx} {item}
-                </Text>
-              ))}
+            <VStack spacing={6}>
+              {Boolean(card.length) &&
+                card.map((item, idx) => (
+                  <Box width="100%">
+                    <Flex justifyContent="space-between">
+                      <Text display="inline-block">
+                        $ {item[1]} {item[0]}{" "}
+                      </Text>
+                      <Button
+                        onClick={() => {
+                          handleDeleteOneproduct(item);
+                        }}
+                        backgroundColor="white"
+                        size="xs"
+                      >
+                        <Image src="https://icongr.am/fontawesome/trash-o.svg?size=24&color=ff0000" />
+                      </Button>
+                    </Flex>
+                    <Divider orientation="horizontal" />
+                  </Box>
+                ))}
+            </VStack>
           </DrawerBody>
           <DrawerFooter borderTopWidth="1px">
-            <Text>Total: {total}</Text>
+            <Link href={`https://wa.me/541111111111?text=${whatsapp}${total}`}>
+              <Button onClick={handleSendWhatsApp}>
+                <Img src="https://icongr.am/fontawesome/whatsapp.svg?size=30&color=047c28"></Img>
+                Completar pedido
+              </Button>
+            </Link>
+            <Text>Total: $ {total}</Text>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
-
-      <Link href={`https://wa.me/541111111111?text=${whatsapp}${total}`}>
-        <Button onClick={handleSendWhatsApp}>Completar pedido</Button>
-      </Link>
     </>
   );
 }
