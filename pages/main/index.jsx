@@ -47,6 +47,11 @@ export default function Home({ products }) {
   function handleDeleteOneproduct(item) {
     const result = card.filter((product) => product !== item);
     setCard(result);
+    let totaltwo = 0;
+    for (let total of result) {
+      totaltwo += Number.parseFloat(total[1], 10);
+    }
+    setTotal(totaltwo);
   }
 
   return (
@@ -174,9 +179,7 @@ const getData = async () => {
         },
       });
     })
-    .catch((error) => {
-      console.log("algo salio mal", error);
-    });
+    .catch((error) => {});
   return data;
 };
 
