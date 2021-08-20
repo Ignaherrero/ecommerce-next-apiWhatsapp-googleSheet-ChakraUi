@@ -1,7 +1,5 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import axios from "axios";
-import Papa from "papaparse";
 import { Grid } from "@chakra-ui/layout";
 import { GridItem } from "@chakra-ui/layout";
 import { Text } from "@chakra-ui/layout";
@@ -23,6 +21,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useDisclosure } from "@chakra-ui/react";
+import { getData } from "../../api/getData";
+import { nanoid } from "nanoid";
 
 export default function Home({ products }) {
   const [card, setCard] = useState([]);
@@ -35,13 +35,21 @@ export default function Home({ products }) {
   }, []);
 
   function handleClickAddCard(tipo, precio) {
-    setCard([...card, [tipo, precio]]);
-    setTotal(total + Number.parseFloat(precio, 10));
+    let result = [];
+    result = card.filter((product) => product[0] === tipo);
+    console.log(result.lenght);
+    if (result.length === 0) {
+      setCard([...card, [tipo, precio]]);
+      setTotal(total + Number.parseFloat(precio, 10));
+    }
   }
 
   function handleSendWhatsApp() {
-    const result = card.map((product) => product).join("-");
-    setWhatsapp(result, total);
+    let products = "";
+    for (let product of card) {
+      products = products + product[0] + ", ";
+    }
+    setWhatsapp(products);
   }
 
   function handleDeleteOneproduct(item) {
@@ -130,10 +138,10 @@ export default function Home({ products }) {
             <VStack spacing={6}>
               {Boolean(card.length) &&
                 card.map((item, idx) => (
-                  <Box width="100%">
+                  <Box width="100%" key={nanoid()}>
                     <Flex justifyContent="space-between">
                       <Text display="inline-block">
-                        $ {item[1]} {item[0]}{" "}
+                        {item[0]} $ {item[1]}
                       </Text>
                       <Button
                         onClick={() => {
@@ -151,7 +159,11 @@ export default function Home({ products }) {
             </VStack>
           </DrawerBody>
           <DrawerFooter borderTopWidth="1px">
-            <Link href={`https://wa.me/541111111111?text=${whatsapp}${total}`}>
+            <Link
+              href={`https://wa.me/541111111111?text=${encodeURIComponent(
+                whatsapp
+              )}- total= $ ${encodeURIComponent(total)}`}
+            >
               <Button onClick={handleSendWhatsApp}>
                 <Img src="https://icongr.am/fontawesome/whatsapp.svg?size=30&color=047c28"></Img>
                 Completar pedido
@@ -164,24 +176,6 @@ export default function Home({ products }) {
     </>
   );
 }
-
-const getData = async () => {
-  let data = [];
-  await axios
-    .get(
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSvXrVki3OtoXJ9Ci-Ylqny0khYyLa3yfVIxzopVV03g2v-2A-PjKP9Kgx0wSd4MhEWNTBPU0sDT9n0/pub?gid=0&single=true&output=csv"
-    )
-    .then((response) => {
-      Papa.parse(response.data, {
-        header: true,
-        complete: function (results) {
-          data = results.data;
-        },
-      });
-    })
-    .catch((error) => {});
-  return data;
-};
 
 export async function getStaticProps() {
   const products = await getData();
